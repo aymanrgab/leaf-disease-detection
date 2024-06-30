@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaf Disease Detection</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        #result, #error {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        #visualization {
+            max-width: 100%;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Leaf Disease Detection</h1>
+    <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".png,.jpg,.jpeg">
+        <button type="submit">Upload and Predict</button>
+    </form>
+    <div id="result"></div>
+    <div id="error"></div>
+    <img id="visualization" src="" alt="Prediction Visualization" style="display: none;">
+
+    <script>
+        $(document).ready(function() {
+            $('#upload-form').on('submit', function(e) {
+                e.preventDefault();
+                var formData = new FormData(this);
+                $.ajax({
+                    url: '/',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(data) {
+                        if (data.error) {
+                            $('#error').text(data.error);
+                            $('#result').text('');
+                            $('#visualization').hide();
+                        } else {
+                            $('#result').html('Prediction: ' + data.prediction + '<br>Confidence: ' + data.confidence);
+                            $('#error').text('');
+                            $('#visualization').attr('src', 'data:image/png;base64,' + data.visualization);
+                            $('#visualization').show();
+                        }
+                    },
+                    error: function() {
+                        $('#error').text('An error occurred during the request.');
+                        $('#result').text('');
+                        $('#visualization').hide();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
